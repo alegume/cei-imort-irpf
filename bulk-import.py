@@ -63,6 +63,47 @@ def monthly_negotiations(sheet):
     negotiations = read_table(sheet, header, row, col)
     return negotiations
 
+def median_prices(negotiations):
+    '''
+        Calculation of median prices by the formula:
+            pm = sum(qtd * pm_compra) - sum(qtd * pm_venda) / (sum(qtd_compra) - sum(qtd_venda))
+    '''
+    dicts_cod_sums = {}
+    for nego in negotiations:
+        cod = nego['cod']
+        cod_sum = dicts_cod_sums.get(cod, {
+            'total_price': 0,
+            'n_buy': 0,
+            'n_sell': 0
+        })
+        if nego['posicao'].strip() == 'VENDIDA':
+            # Update total_price, n_sell
+            cod_sum['total_price'] = cod_sum.get('total_price', 0) - nego['pm_venda'] * nego['qtd_venda']
+            cod_sum['n_sell'] = cod_sum.get('n_sell', 0) + nego['qtd_venda']
+            print('\tVEnda', cod)
+            print(nego['pm_venda'], '*', nego['qtd_venda'], '=',cod_sum['total_price'])
+        elif nego['posicao'].strip() == 'COMPRADA':
+            # Update total_price, n_buy
+            cod_sum['total_price'] = cod_sum.get('total_price', 0) + nego['pm_compra'] * nego['qtd_compra']
+            cod_sum['n_buy'] = cod_sum.get('n_buy', 0) + nego['qtd_compra']
+            print('\tCompra', cod)
+            print(nego['pm_compra'], '*', nego['qtd_compra'], '=',cod_sum['total_price'])
+
+        dicts_cod_sums[cod] = cod_sum
+    for cod in dicts_cod_sums:
+        print(cod,
+            dicts_cod_sums[cod]['total_price'],
+            dicts_cod_sums[cod]['n_buy'],
+            dicts_cod_sums[cod]['n_sell']
+        )
+        try:
+            dicts_cod_sums[cod]['pm'] = dicts_cod_sums[cod]['total_price'] / (dicts_cod_sums[cod].get('n_buy', 0) - dicts_cod_sums[cod].get('n_sell', 0))
+        except ZeroDivisionError:
+            # TODO: record sells
+            print('\tStock', cod, 'fully selled!!!')
+
+    return dicts_cod_sums
+
 #### Begin
 if __name__ == "__main__":
     files = [f for f in listdir(DIR) if isfile(join(DIR, f)) and f.endswith('.xls')]
@@ -72,21 +113,6 @@ if __name__ == "__main__":
         sheet = workbook.sheet_by_index(0)
         negotiations += monthly_negotiations(sheet)
 
+    pms = median_prices(negotiations)
     print(negotiations)
-    dict_pm_qtd = {}
-    for nego in negotiations:
-        if nego['posicao'].strip() == 'VENDIDA':
-            continue
-        else:
-            cod = nego['cod']
-            pm, qtd = dict_pm_qtd.get(cod, [0, 0])
-            # Update pm and qtd
-            pm += nego['pm_compra'] * nego['qtd_compra']
-            qtd += nego['qtd_compra']
-            dict_pm_qtd[cod] = [pm, qtd]
-
-    for key, value in dict_pm_qtd.items():
-        pm, qtd = value
-        dict_pm_qtd[key][0] = pm / qtd
-
-    print(dict_pm_qtd)
+    print(pms)
