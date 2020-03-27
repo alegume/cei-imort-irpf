@@ -5,6 +5,10 @@
         bens-direitos.csv,
 '''
 
+# TODO: desconsiderar vendas, ver formula
+
+
+
 from os import listdir
 from os.path import isfile, join
 import xlrd
@@ -31,12 +35,16 @@ def read_table(sheet, header, row, col):
         # Remove F after the cod
         if cod.endswith('F'):
             line[0] = cod[0:-1]
-        # Convert , -> .
+        else:
+            line[0] = cod
+        # Converting
+        line[0] = str(line[0])
         line[2] = float(str(line[2]).replace(',', '.'))
         line[3] = float(str(line[3]).replace(',', '.'))
         line[4] = float(str(line[4]).replace(',', '.'))
         line[5] = float(str(line[5]).replace(',', '.'))
         line[6] = float(str(line[6]).replace(',', '.'))
+        line[7] = str(line[7])
         lines.append(line)
     # Create the dict
     negotiation = []
@@ -58,15 +66,27 @@ def monthly_negotiations(sheet):
 #### Begin
 if __name__ == "__main__":
     files = [f for f in listdir(DIR) if isfile(join(DIR, f)) and f.endswith('.xls')]
+    negotiations = []
     for file in files:
         workbook = xlrd.open_workbook(join(DIR, file))
         sheet = workbook.sheet_by_index(0)
-        negotiations = monthly_negotiations(sheet)
+        negotiations += monthly_negotiations(sheet)
 
-    dict_pm = {}
+    print(negotiations)
+    dict_pm_qtd = {}
     for nego in negotiations:
-        if nego['posicao'] != 'COMPRADA':
+        if nego['posicao'].strip() == 'VENDIDA':
             continue
-        cod = nego['cod']
-        dict_pm[cod] = dict_pm.get(cod, 0) + (nego['pm_compra'] / nego['qtd_compra'])
-        print(dict_pm)
+        else:
+            cod = nego['cod']
+            pm, qtd = dict_pm_qtd.get(cod, [0, 0])
+            # Update pm and qtd
+            pm += nego['pm_compra'] * nego['qtd_compra']
+            qtd += nego['qtd_compra']
+            dict_pm_qtd[cod] = [pm, qtd]
+
+    for key, value in dict_pm_qtd.items():
+        pm, qtd = value
+        dict_pm_qtd[key][0] = pm / qtd
+
+    print(dict_pm_qtd)
