@@ -18,6 +18,7 @@ import xlrd
 DIR = 'import-file-xls'
 NEGOTIATION_STR = 'INFORMAÇÕES DE NEGOCIAÇÃO DE ATIVOS'
 FILE_SELLS = 'vendas.csv'
+FILE_PM = 'preco-medio-acoes.csv'
 
 def search(sheet, str):
     for row in range(sheet.nrows):
@@ -71,7 +72,7 @@ def monthly_negotiations(sheet):
 
 def record_sells(cod, info):
     '''
-        Record sells in a file
+        Record sells in a csv file
     '''
     with open(FILE_SELLS, mode='a+') as file:
         writer = csv.writer(file)
@@ -86,6 +87,23 @@ def record_sells(cod, info):
         ])
     # print(cod, info)
 
+def record_pms(pms):
+    '''
+        Record PMs in a csv file
+    '''
+    with open(FILE_PM, mode='w') as file:
+        writer = csv.writer(file)
+        if getsize(FILE_PM) == 0:
+            writer.writerow(['Cod', 'Qtd vendas', 'Qtd compras', 'PM', 'Total Acc'])
+        for cod, dict in pms.items():
+            writer.writerow([
+                cod,
+                dict.get('n_sell', 0),
+                dict.get('n_buy', 0),
+                dict.get('pm', 0),
+                dict.get('total_price', 0)
+            ])
+    # print(cod, info)
 
 
 def median_prices(negotiations):
@@ -144,5 +162,6 @@ if __name__ == "__main__":
         negotiations += monthly_negotiations(sheet)
 
     pms = median_prices(negotiations)
+    record_pms(pms)
     # print(negotiations)
     # print(pms)
