@@ -80,27 +80,27 @@ def median_prices(negotiations):
             # Update total_price, n_sell
             cod_sum['total_price'] = cod_sum.get('total_price', 0) - nego['pm_venda'] * nego['qtd_venda']
             cod_sum['n_sell'] = cod_sum.get('n_sell', 0) + nego['qtd_venda']
-            print('\tVEnda', cod)
-            print(nego['pm_venda'], '*', nego['qtd_venda'], '=',cod_sum['total_price'])
+            # print('\tVEnda', cod)
+            # print(nego['pm_venda'], '*', nego['qtd_venda'], '=',cod_sum['total_price'])
         elif nego['posicao'].strip() == 'COMPRADA':
             # Update total_price, n_buy
             cod_sum['total_price'] = cod_sum.get('total_price', 0) + nego['pm_compra'] * nego['qtd_compra']
             cod_sum['n_buy'] = cod_sum.get('n_buy', 0) + nego['qtd_compra']
-            print('\tCompra', cod)
-            print(nego['pm_compra'], '*', nego['qtd_compra'], '=',cod_sum['total_price'])
+            # print('\tCompra', cod)
+            # print(nego['pm_compra'], '*', nego['qtd_compra'], '=',cod_sum['total_price'])
 
         dicts_cod_sums[cod] = cod_sum
     for cod in dicts_cod_sums:
-        print(cod,
-            dicts_cod_sums[cod]['total_price'],
-            dicts_cod_sums[cod]['n_buy'],
-            dicts_cod_sums[cod]['n_sell']
-        )
+        # print(cod,
+        #     dicts_cod_sums[cod]['total_price'],
+        #     dicts_cod_sums[cod]['n_buy'],
+        #     dicts_cod_sums[cod]['n_sell']
+        # )
         try:
             dicts_cod_sums[cod]['pm'] = dicts_cod_sums[cod]['total_price'] / (dicts_cod_sums[cod].get('n_buy', 0) - dicts_cod_sums[cod].get('n_sell', 0))
         except ZeroDivisionError:
             # TODO: record sells
-            print('\tStock', cod, 'fully selled!!!')
+            print('\t\tStock', cod, 'fully selled!!!')
 
     return dicts_cod_sums
 
@@ -114,5 +114,5 @@ if __name__ == "__main__":
         negotiations += monthly_negotiations(sheet)
 
     pms = median_prices(negotiations)
-    print(negotiations)
+    # print(negotiations)
     print(pms)
