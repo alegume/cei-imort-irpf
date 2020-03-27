@@ -5,6 +5,8 @@
         bens-direitos.csv,
 '''
 
+from os import listdir
+from os.path import isfile, join
 import xlrd
 
 # some consts for easy configuring
@@ -29,6 +31,12 @@ def read_table(sheet, header, row, col):
         # Remove F after the cod
         if cod.endswith('F'):
             line[0] = cod[0:-1]
+        # Convert , -> .
+        line[2] = float(str(line[2]).replace(',', '.'))
+        line[3] = float(str(line[3]).replace(',', '.'))
+        line[4] = float(str(line[4]).replace(',', '.'))
+        line[5] = float(str(line[5]).replace(',', '.'))
+        line[6] = float(str(line[6]).replace(',', '.'))
         lines.append(line)
     # Create the dict
     negotiation = []
@@ -47,10 +55,18 @@ def monthly_negotiations(sheet):
     negotiations = read_table(sheet, header, row, col)
     return negotiations
 
-
 #### Begin
 if __name__ == "__main__":
-    workbook = xlrd.open_workbook('import-file-xls/jan.xls')
-    sheet = workbook.sheet_by_index(0)
+    files = [f for f in listdir(DIR) if isfile(join(DIR, f)) and f.endswith('.xls')]
+    for file in files:
+        workbook = xlrd.open_workbook(join(DIR, file))
+        sheet = workbook.sheet_by_index(0)
+        negotiations = monthly_negotiations(sheet)
 
-    print(monthly_negotiations(sheet))
+    dict_pm = {}
+    for nego in negotiations:
+        if nego['posicao'] != 'COMPRADA':
+            continue
+        cod = nego['cod']
+        dict_pm[cod] = dict_pm.get(cod, 0) + (nego['pm_compra'] / nego['qtd_compra'])
+        print(dict_pm)
