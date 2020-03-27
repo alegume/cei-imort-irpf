@@ -5,17 +5,19 @@
         bens-direitos.csv,
 '''
 
-# TODO: desconsiderar vendas, ver formula
+# TODO: salvar bens e vendas
+# DONE: desconsiderar vendas, ver formula
 
-
-
+import sys
+import csv
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, getsize
 import xlrd
 
 # some consts for easy configuring
 DIR = 'import-file-xls'
 NEGOTIATION_STR = 'INFORMAÇÕES DE NEGOCIAÇÃO DE ATIVOS'
+FILE_SELLS = 'vendas.csv'
 
 def search(sheet, str):
     for row in range(sheet.nrows):
@@ -31,6 +33,10 @@ def read_table(sheet, header, row, col):
             break
         # Remove empty columns
         line = [x for x in sheet.row_values(r) if x is not '']
+        # Verify format
+        if len(line) != 8:
+            print('\t\t Format error in table')
+            sys.exit(1)
         cod = line[0].strip() # remove spaces
         # Remove F after the cod
         if cod.endswith('F'):
@@ -63,6 +69,25 @@ def monthly_negotiations(sheet):
     negotiations = read_table(sheet, header, row, col)
     return negotiations
 
+def record_sells(cod, info):
+    '''
+        Record sells in a file
+    '''
+    with open(FILE_SELLS, mode='a+') as file:
+        writer = csv.writer(file)
+        if getsize(FILE_SELLS) == 0:
+            writer.writerow(['COD', 'Vendas', 'Compras', 'Lucro', 'Total Acc'])
+        writer.writerow([
+            cod,
+            info['n_sell'],
+            info['n_buy'],
+            info['profit'],
+            info['total_price']
+        ])
+    # print(cod, info)
+
+
+
 def median_prices(negotiations):
     '''
         Calculation of median prices by the formula:
@@ -88,6 +113,8 @@ def median_prices(negotiations):
             cod_sum['n_buy'] = cod_sum.get('n_buy', 0) + nego['qtd_compra']
             # print('\tCompra', cod)
             # print(nego['pm_compra'], '*', nego['qtd_compra'], '=',cod_sum['total_price'])
+        else:
+            print('\t\t Error in column Posição')
 
         dicts_cod_sums[cod] = cod_sum
     for cod in dicts_cod_sums:
@@ -100,6 +127,9 @@ def median_prices(negotiations):
             dicts_cod_sums[cod]['pm'] = dicts_cod_sums[cod]['total_price'] / (dicts_cod_sums[cod].get('n_buy', 0) - dicts_cod_sums[cod].get('n_sell', 0))
         except ZeroDivisionError:
             # TODO: record sells
+            # there are a profit if it's negative
+            dicts_cod_sums[cod]['profit'] = - dicts_cod_sums[cod]['total_price']
+            record_sells(cod, dicts_cod_sums[cod])
             print('\t\tStock', cod, 'fully selled!!!')
 
     return dicts_cod_sums
@@ -115,4 +145,4 @@ if __name__ == "__main__":
 
     pms = median_prices(negotiations)
     # print(negotiations)
-    print(pms)
+    # print(pms)
