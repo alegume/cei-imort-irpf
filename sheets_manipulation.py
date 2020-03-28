@@ -63,8 +63,6 @@ def record_negotiations(negotiations):
         Record ALL negotiations in diferents csv files
     '''
     remove_old_files_endswith(NEGOTIATIONS_DIR, '.csv')
-    print(BASE_DIR)
-    remove_old_files_endswith(BASE_DIR, '.csv')
     total = {}
     for nego in negotiations:
         cod = nego['cod']
@@ -72,28 +70,15 @@ def record_negotiations(negotiations):
         total[cod] = total.get(cod, 0) - nego['qtd_venda']
         file_name = join(NEGOTIATIONS_DIR, nego['cod'] + '.csv')
         obs = ''
-        # record full sell of a stock
-        if total[cod] <= 0:
-            # If its strictly < 0 than something are missing
-            obs = MSG_TO_MANY_SELLS if total[cod] < 0  else ''
-            with open(FILE_SELLS, mode='a+') as file:
-                writer = csv.writer(file)
-                if getsize(FILE_SELLS) == 0:
-                    writer.writerow(['COD', 'Data', 'Qtd compras', 'Qtd vendas', 'Posição', 'Qtd ações', 'Observações'])
-                writer.writerow([
-                    nego['cod'],
-                    nego['data'],
-                    nego['qtd_compra'],
-                    nego['qtd_venda'],
-                    nego['posicao'],
-                    total[cod],
-                    obs
-                ])
-        # write in negotiation file anyway
+        # If total stocks < 0 than something are missing
+        obs = MSG_TO_MANY_SELLS if total[cod] < 0  else ''
         with open(file_name, mode='a+') as file:
             writer = csv.writer(file)
             if getsize(file_name) == 0:
-                writer.writerow(['COD', 'Data', 'Qtd compras', 'Qtd vendas', 'Posição', 'Qtd ações', 'Observações'])
+                writer.writerow([
+                    'COD', 'Data', 'Qtd compras', 'Qtd vendas', 'Posição',
+                    'Qtd ações', 'Observações'
+                ])
             writer.writerow([
                 nego['cod'],
                 nego['data'],
@@ -106,21 +91,45 @@ def record_negotiations(negotiations):
 
 def record_pms(pms):
     '''
-        Record PMs in a csv file
+        Record PMs and Sells in a csv file
     '''
     with open(FILE_PM, mode='w') as file:
         writer = csv.writer(file)
         if getsize(FILE_PM) == 0:
-            writer.writerow(['Cod', 'Qtd vendas', 'Qtd compras', 'PM', 'Total Acc', 'Observações'])
+            writer.writerow(['Cod', 'Qtd vendas', 'Qtd compras', 'PM', 'Observações'])
         for cod, dict in pms.items():
-            obs = ''
-            if dict.get('n_sell', 0) > dict.get('n_buy', 0):
-                obs = 'ATENÇÃO! Mais vendas do que o possível. É provável que aconteceu algum split, transferência de ativos ou outro evento que tenha aumentado sua quantidade de ações; porém, não entrou na planilha de negociações da CEI e não foi contabilizada. VERIFIQUE!'
+            obs = MSG_TO_MANY_SELLS if dict.get('n_sell', 0) > dict.get('n_buy', 0) else ''
             writer.writerow([
                 cod,
                 dict.get('n_sell', 0),
                 dict.get('n_buy', 0),
                 dict.get('pm', 0),
-                dict.get('total_price', 0),
+                obs
+            ])
+
+    # Record Sells
+    with open(FILE_SELLS, mode='w') as file:
+        writer = csv.writer(file)
+        if getsize(FILE_SELLS) == 0:
+            writer.writerow([
+                'Cod', 'Data', 'Qtd vendas', 'Qtd compras',
+                'PM', 'Lucro', 'Observações'
+            ])
+        for cod, dict in pms.items():
+            # Discart only buys
+            if (dict.get('n_sell', 0) <= 0):
+                continue
+
+            # If total stocks < 0 than something are missing
+            obs = MSG_TO_MANY_SELLS if dict.get('n_sell', 0) > dict.get('n_buy', 0) else ''
+            profit =
+            writer.writerow([dict.get('n_sell', 0), 
+                cod,
+                dict.get('data', 0),
+                dict.get('n_sell', 0),
+                dict.get('n_buy', 0),
+                dict.get('pm', 0),
+                # if its total_price < 0 it's a proffit
+                profit,
                 obs
             ])
