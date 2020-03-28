@@ -5,60 +5,20 @@
         bens-direitos.csv,
 '''
 
+# TODO: Criar planilha de negociacao por ativo
 # TODO: VErificar se sell >= buy pra vendas, etc
 # DONE: salvar bens e vendas, desconsiderar vendas, ver formula
 
 import sys
-import csv
 from os import listdir
-from os.path import isfile, join, getsize
-import xlrd
+from os.path import isfile, join
+
+from sheets_manipulation import *
 
 # some consts for easy configuring
 DIR = 'import-file-xls'
 NEGOTIATION_STR = 'INFORMAÇÕES DE NEGOCIAÇÃO DE ATIVOS'
-FILE_SELLS = 'vendas.csv'
-FILE_PM = 'preco-medio-acoes.csv'
 
-def search(sheet, str):
-    for row in range(sheet.nrows):
-        for col in range(sheet.ncols):
-            if sheet.cell_value(row, col) == str:
-                return (row, col)
-
-def read_table(sheet, header, row, col):
-    lines = []
-    for r in range(row, sheet.nrows):
-        # Abort if it the end of table
-        if (sheet.cell(r, col).value == xlrd.empty_cell.value):
-            break
-        # Remove empty columns
-        line = [x for x in sheet.row_values(r) if x is not '']
-        # Verify format
-        if len(line) != 8:
-            print('\t\t Format error in table')
-            sys.exit(1)
-        cod = line[0].strip() # remove spaces
-        # Remove F after the cod
-        if cod.endswith('F'):
-            line[0] = cod[0:-1]
-        else:
-            line[0] = cod
-        # Converting
-        line[0] = str(line[0])
-        line[2] = float(str(line[2]).replace(',', '.'))
-        line[3] = float(str(line[3]).replace(',', '.'))
-        line[4] = float(str(line[4]).replace(',', '.'))
-        line[5] = float(str(line[5]).replace(',', '.'))
-        line[6] = float(str(line[6]).replace(',', '.'))
-        line[7] = str(line[7])
-        lines.append(line)
-    # Create the dict
-    negotiation = []
-    for value in lines:
-        negotiation.append(dict(zip(header, value)))
-
-    return negotiation
 
 def monthly_negotiations(sheet):
     # Find negotiation table
@@ -69,41 +29,6 @@ def monthly_negotiations(sheet):
     header = ['cod', 'data', 'qtd_compra', 'qtd_venda', 'pm_compra', 'pm_venda', 'qtd_liquida', 'posicao']
     negotiations = read_table(sheet, header, row, col)
     return negotiations
-
-def record_sells(cod, info):
-    '''
-        Record sells in a csv file
-    '''
-    with open(FILE_SELLS, mode='a+') as file:
-        writer = csv.writer(file)
-        if getsize(FILE_SELLS) == 0:
-            writer.writerow(['COD', 'Vendas', 'Compras', 'Lucro', 'Total Acc'])
-        writer.writerow([
-            cod,
-            info['n_sell'],
-            info['n_buy'],
-            info['profit'],
-            info['total_price']
-        ])
-    # print(cod, info)
-
-def record_pms(pms):
-    '''
-        Record PMs in a csv file
-    '''
-    with open(FILE_PM, mode='w') as file:
-        writer = csv.writer(file)
-        if getsize(FILE_PM) == 0:
-            writer.writerow(['Cod', 'Qtd vendas', 'Qtd compras', 'PM', 'Total Acc'])
-        for cod, dict in pms.items():
-            writer.writerow([
-                cod,
-                dict.get('n_sell', 0),
-                dict.get('n_buy', 0),
-                dict.get('pm', 0),
-                dict.get('total_price', 0)
-            ])
-    # print(cod, info)
 
 
 def median_prices(negotiations):
@@ -161,7 +86,9 @@ if __name__ == "__main__":
         sheet = workbook.sheet_by_index(0)
         negotiations += monthly_negotiations(sheet)
 
+    record_negotiations(negotiations)
+
     pms = median_prices(negotiations)
     record_pms(pms)
     # print(negotiations)
-    print(pms)
+    # print(pms)
