@@ -9,8 +9,8 @@ FILE_PM = 'preco-medio-acoes.csv'
 NEGOTIATIONS_DIR = 'negotiations'
 MSG_TO_MANY_SELLS = 'ATENÇÃO! Mais vendas do que o possível. É provável que aconteceu algum split, transferência de ativos ou outro evento que tenha aumentado sua quantidade de ações; porém, não entrou na planilha de negociações da CEI e não foi contabilizada. VERIFIQUE!'
 
-def remove_old_files(dir):
-    files = [f for f in listdir(dir) if isfile(join(dir, f)) and f.endswith('.csv')]
+def remove_old_files_endswith(dir, ends):
+    files = [f for f in listdir(dir) if isfile(join(dir, f)) and f.endswith(ends)]
     for file in files:
         remove(join(dir, file))
 
@@ -58,7 +58,7 @@ def record_negotiations(negotiations):
     '''
         Record  ALL negotiations in diferents csv files
     '''
-    remove_old_files(NEGOTIATIONS_DIR)
+    remove_old_files_endswith(NEGOTIATIONS_DIR, '.csv')
     total = {}
     for nego in negotiations:
         cod = nego['cod']
