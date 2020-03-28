@@ -1,11 +1,18 @@
 import csv
-from os.path import getsize, join
+from os.path import getsize, join, isfile
+from os import remove, listdir
 import xlrd
 
 # some consts for easy configuring
 FILE_SELLS = 'vendas.csv'
 FILE_PM = 'preco-medio-acoes.csv'
 NEGOTIATIONS_DIR = 'negotiations'
+MSG_TO_MANY_SELLS = 'ATENÇÃO! Mais vendas do que o possível. É provável que aconteceu algum split, transferência de ativos ou outro evento que tenha aumentado sua quantidade de ações; porém, não entrou na planilha de negociações da CEI e não foi contabilizada. VERIFIQUE!'
+
+def remove_old_files(dir):
+    files = [f for f in listdir(dir) if isfile(join(dir, f)) and f.endswith('.csv')]
+    for file in files:
+        remove(join(dir, file))
 
 def search(sheet, str):
     for row in range(sheet.nrows):
@@ -51,6 +58,7 @@ def record_negotiations(negotiations):
     '''
         Record  ALL negotiations in diferents csv files
     '''
+    remove_old_files(NEGOTIATIONS_DIR)
     total = {}
     for nego in negotiations:
         cod = nego['cod']
@@ -59,7 +67,7 @@ def record_negotiations(negotiations):
         file_name = join(NEGOTIATIONS_DIR, nego['cod'] + '.csv')
         obs = ''
         if total[cod] < 0:
-            obs = 'ATENÇÃO! Mais vendas do que o possível. É provável que aconteceu algum split, transferência de ativos ou outro evento que tenha aumentado sua quantidade de ações; porém, não entrou na planilha de negociações da CEI e não foi contabilizada. VERIFIQUE!'
+            obs = MSG_TO_MANY_SELLS
         with open(file_name, mode='a+') as file:
             writer = csv.writer(file)
             if getsize(file_name) == 0:
@@ -74,21 +82,27 @@ def record_negotiations(negotiations):
                 obs
             ])
 
-def record_sells(cod, info):
+def record_sells(negotiations):
     '''
         Record sells in a csv file
     '''
-    with open(FILE_SELLS, mode='a+') as file:
-        writer = csv.writer(file)
-        if getsize(FILE_SELLS) == 0:
-            writer.writerow(['COD', 'Vendas', 'Compras', 'Lucro', 'Total Acc'])
-        writer.writerow([
-            cod,
-            info['n_sell'],
-            info['n_buy'],
-            info['profit'],
-            info['total_price']
-        ])
+    for nego in negotiations:
+        cod = nego['cod']
+        # print(nego)
+        with open(FILE_SELLS, mode='w') as file:
+            writer = csv.writer(file)
+            if getsize(FILE_SELLS) == 0:
+                writer.writerow(['COD', 'Vendas', 'Compras', 'Lucro', 'Total Acc'])
+
+############## Aqui!!!!!!
+
+            # writer.writerow([
+            #     cod,
+            #     nego['n_sell'],
+            #     nego['n_buy'],
+            #     nego['profit'],
+            #     nego['total_price']
+            # ])
 
 def record_pms(pms):
     '''

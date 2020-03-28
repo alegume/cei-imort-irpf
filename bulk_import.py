@@ -2,12 +2,12 @@
 
 '''
     Import xls files in import-file-xls and create the files:
-        bens-direitos.csv,
+        preco-medio-acoes.csv, vendas.csv and one csv file per stock in negotiations.
 '''
 
-# TODO: Criar planilha de negociacao por ativo
 # TODO: VErificar se sell >= buy pra vendas, etc
-# DONE: salvar bens e vendas, desconsiderar vendas, ver formula
+# TODO: Readme.md
+# DONE: Criar planilha de negociacao por ativo, salvar bens e vendas, desconsiderar vendas, ver formula
 
 import sys
 from os import listdir
@@ -37,6 +37,7 @@ def median_prices(negotiations):
             pm = sum(qtd * pm_compra) - sum(qtd * pm_venda) / (sum(qtd_compra) - sum(qtd_venda))
     '''
     dicts_cod_sums = {}
+    # Populate the dict with infos and sums
     for nego in negotiations:
         cod = nego['cod']
         cod_sum = dicts_cod_sums.get(cod, {
@@ -52,14 +53,16 @@ def median_prices(negotiations):
             # print(nego['pm_venda'], '*', nego['qtd_venda'], '=',cod_sum['total_price'])
         elif nego['posicao'].strip() == 'COMPRADA':
             # Update total_price, n_buy
-            cod_sum['total_price'] = cod_sum.get('total_price', 0) + nego['pm_compra'] * nego['qtd_compra']
+            cod_sum['total_price'] = cod_sum.get('total_price', 0) + \
+                nego['pm_compra'] * nego['qtd_compra']
             cod_sum['n_buy'] = cod_sum.get('n_buy', 0) + nego['qtd_compra']
             # print('\tCompra', cod)
             # print(nego['pm_compra'], '*', nego['qtd_compra'], '=',cod_sum['total_price'])
         else:
-            print('\t\t Error in column Posição')
-
+            print('\t\t Error in column Posição. Unnable to proceed, verify import file.')
         dicts_cod_sums[cod] = cod_sum
+
+    # Calculate PM
     for cod in dicts_cod_sums:
         # print(cod,
         #     dicts_cod_sums[cod]['total_price'],
@@ -67,12 +70,13 @@ def median_prices(negotiations):
         #     dicts_cod_sums[cod]['n_sell']
         # )
         try:
-            dicts_cod_sums[cod]['pm'] = dicts_cod_sums[cod]['total_price'] / (dicts_cod_sums[cod].get('n_buy', 0) - dicts_cod_sums[cod].get('n_sell', 0))
+            dicts_cod_sums[cod]['pm'] = dicts_cod_sums[cod]['total_price'] \
+                / (dicts_cod_sums[cod].get('n_buy', 0) - dicts_cod_sums[cod].get('n_sell', 0))
         except ZeroDivisionError:
             # TODO: record sells
-            # there are a profit if it's negative
-            dicts_cod_sums[cod]['profit'] = - dicts_cod_sums[cod]['total_price']
-            record_sells(cod, dicts_cod_sums[cod])
+            # # there are a profit if it's negative. Becaus (sell value > buy value)
+            # dicts_cod_sums[cod]['profit'] = - dicts_cod_sums[cod]['total_price']
+            # record_sells(cod, dicts_cod_sums[cod])
             print('\t\tStock', cod, 'fully selled!!!')
 
     return dicts_cod_sums
@@ -86,7 +90,10 @@ if __name__ == "__main__":
         sheet = workbook.sheet_by_index(0)
         negotiations += monthly_negotiations(sheet)
 
+    # Create csv files in negotiations dir
     record_negotiations(negotiations)
+    # Create vendas.csv
+    record_sells(negotiations)
 
     pms = median_prices(negotiations)
     record_pms(pms)
