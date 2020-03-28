@@ -21,14 +21,14 @@ DIR = 'import-file-xls'
 NEGOTIATION_STR = 'INFORMAÇÕES DE NEGOCIAÇÃO DE ATIVOS'
 
 
-def monthly_negotiations(sheet):
+def monthly_negotiations(sheet, datemode):
     # Find negotiation table
     row, col = search(sheet, NEGOTIATION_STR)
     # Jump empty rows and header
     row += 3
     # header =  [x for x in sheet.row_values(row) if x is not '']
     header = ['cod', 'data', 'qtd_compra', 'qtd_venda', 'pm_compra', 'pm_venda', 'qtd_liquida', 'posicao']
-    negotiations = read_table(sheet, header, row, col)
+    negotiations = read_table(sheet, header, row, col, datemode)
     return negotiations
 
 
@@ -89,12 +89,15 @@ if __name__ == "__main__":
     for file in files:
         workbook = xlrd.open_workbook(join(DIR, file))
         sheet = workbook.sheet_by_index(0)
-        negotiations += monthly_negotiations(sheet)
+        negotiations += monthly_negotiations(sheet, workbook.datemode)
+
+    # Sort negotiations by date
+    negotiations = sorted(negotiations, key=lambda k: k['data'])
+    # print(negotiations)
 
     # Create csv files in negotiations dir and create delss file
     record_negotiations(negotiations)
 
     pms = median_prices(negotiations)
     record_pms(pms)
-    # print(negotiations)
     # print(pms)

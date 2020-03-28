@@ -2,6 +2,7 @@ import csv
 from os.path import getsize, join, isfile, dirname, abspath
 from os import remove, listdir
 import xlrd
+import datetime
 
 # some consts for easy configuring
 FILE_SELLS = 'vendas.csv'
@@ -22,7 +23,7 @@ def search(sheet, str):
             if sheet.cell_value(row, col) == str:
                 return (row, col)
 
-def read_table(sheet, header, row, col):
+def read_table(sheet, header, row, col, datemode):
     lines = []
     for r in range(row, sheet.nrows):
         # Abort if it the end of table
@@ -42,6 +43,7 @@ def read_table(sheet, header, row, col):
             line[0] = cod
         # Converting
         line[0] = str(line[0])
+        line[1] = datetime.datetime(*xlrd.xldate_as_tuple(line[1], datemode)).date()
         line[2] = float(str(line[2]).replace(',', '.'))
         line[3] = float(str(line[3]).replace(',', '.'))
         line[4] = float(str(line[4]).replace(',', '.'))
@@ -76,7 +78,7 @@ def record_negotiations(negotiations):
             obs = MSG_TO_MANY_SELLS if total[cod] < 0  else ''
             with open(FILE_SELLS, mode='a+') as file:
                 writer = csv.writer(file)
-                if getsize(file_name) == 0:
+                if getsize(FILE_SELLS) == 0:
                     writer.writerow(['COD', 'Data', 'Qtd compras', 'Qtd vendas', 'Posição', 'Qtd ações', 'Observações'])
                 writer.writerow([
                     nego['cod'],
@@ -101,29 +103,6 @@ def record_negotiations(negotiations):
                 total[cod],
                 obs
             ])
-        # Record sells
-
-# def record_sells(negotiations):
-#     '''
-#         Record sells in a csv file
-#     '''
-#     for nego in negotiations:
-#         cod = nego['cod']
-#         # print(nego)
-#         with open(FILE_SELLS, mode='w') as file:
-#             writer = csv.writer(file)
-#             if getsize(FILE_SELLS) == 0:
-#                 writer.writerow(['COD', 'Vendas', 'Compras', 'Lucro', 'Total Acc'])
-#
-# ############## Aqui!!!!!!
-#
-#             # writer.writerow([
-#             #     cod,
-#             #     nego['n_sell'],
-#             #     nego['n_buy'],
-#             #     nego['profit'],
-#             #     nego['total_price']
-#             # ])
 
 def record_pms(pms):
     '''
