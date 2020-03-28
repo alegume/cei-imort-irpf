@@ -6,8 +6,8 @@
 '''
 
 # TODO: Order by date
-# TODO: VErificar se sell >= buy pra vendas, etc
 # TODO: Readme.md
+# DONE: VErificar se sell >= buy pra vendas, etc
 # DONE: Criar planilha de negociacao por ativo, salvar bens e vendas, desconsiderar vendas, ver formula
 
 import sys
