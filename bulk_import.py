@@ -5,6 +5,7 @@
         preco-medio-acoes.csv, vendas.csv and one csv file per stock in negotiations.
 '''
 
+# TODO: Order by date
 # TODO: VErificar se sell >= buy pra vendas, etc
 # TODO: Readme.md
 # DONE: Criar planilha de negociacao por ativo, salvar bens e vendas, desconsiderar vendas, ver formula
@@ -90,10 +91,8 @@ if __name__ == "__main__":
         sheet = workbook.sheet_by_index(0)
         negotiations += monthly_negotiations(sheet)
 
-    # Create csv files in negotiations dir
+    # Create csv files in negotiations dir and create delss file
     record_negotiations(negotiations)
-    # Create vendas.csv
-    record_sells(negotiations)
 
     pms = median_prices(negotiations)
     record_pms(pms)
