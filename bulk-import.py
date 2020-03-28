@@ -5,8 +5,8 @@
         bens-direitos.csv,
 '''
 
-# TODO: salvar bens e vendas
-# DONE: desconsiderar vendas, ver formula
+# TODO: VErificar se sell >= buy pra vendas, etc
+# DONE: salvar bens e vendas, desconsiderar vendas, ver formula
 
 import sys
 import csv
@@ -164,4 +164,4 @@ if __name__ == "__main__":
     pms = median_prices(negotiations)
     record_pms(pms)
     # print(negotiations)
-    # print(pms)
+    print(pms)
