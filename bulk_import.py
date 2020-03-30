@@ -49,7 +49,8 @@ def median_prices(negotiations):
             'total_price': 0,
             'n_buy': 0,
             'n_sell': 0,
-            'total_stocks': 0
+            'total_stocks': 0,
+            'pm': 0
         })
 
         cod_sum['total_price'] += nego['pm_compra'] * nego['qtd_compra']
@@ -58,11 +59,12 @@ def median_prices(negotiations):
         cod_sum['n_sell'] += nego['qtd_venda']
         cod_sum['n_buy'] += nego['qtd_compra']
 
-        cod_sum['total_stocks'] += cod_sum['n_buy'] - cod_sum['n_sell']
+        cod_sum['total_stocks'] += nego['qtd_compra'] - nego['qtd_venda']
         cod_sum['data'] = nego['data']
 
         if nego['posicao'].strip() == 'VENDIDA':
-
+            # TODO: profit Calculation
+            cod_sum['profit'] = (nego['pm_venda'] - cod_sum['pm']) * nego['qtd_venda']
             sells.append(cod_sum)
         elif nego['posicao'].strip() == 'COMPRADA':
             pass
@@ -71,7 +73,7 @@ def median_prices(negotiations):
 
         # Calculate PM
         try:
-            cod_sum['pm'] = cod_sum.get('total_price') / cod_sum.get('total_stocks')
+            cod_sum['pm'] = cod_sum['total_price'] / cod_sum['total_stocks']
         except ZeroDivisionError:
             print('\t\tStock', cod, 'fully selled!!!')
 
