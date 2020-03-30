@@ -15,7 +15,6 @@
 # DONE: VErificar se sell >= buy pra vendas, etc
 # DONE: Criar planilha de negociacao por ativo, salvar bens e vendas, desconsiderar vendas, ver formula
 
-import sys
 from os import listdir
 from os.path import isfile, join
 
@@ -89,6 +88,9 @@ if __name__ == "__main__":
 
     # Sort negotiations by date
     negotiations = sorted(negotiations, key=lambda k: k['data'])
+
+    print(negotiations)
+
     # Create csv files in negotiations dir and create delss file
     record_negotiations(negotiations)
     pms = median_prices(negotiations)

@@ -1,3 +1,4 @@
+import sys
 import csv
 from os.path import getsize, join, isfile, dirname, abspath
 from os import remove, listdir
@@ -9,6 +10,7 @@ FILE_SELLS = 'vendas.csv'
 FILE_PM = 'preco-medio-acoes.csv'
 NEGOTIATIONS_DIR = 'negotiations'
 MSG_TO_MANY_SELLS = 'ATENÇÃO! Mais vendas do que o possível. É provável que aconteceu algum split, transferência de ativos ou outro evento que tenha aumentado sua quantidade de ações; porém, não entrou na planilha de negociações da CEI e não foi contabilizada. VERIFIQUE!'
+MSG_STOCK_SELLED = 'Ativo liquidado! Sem custódia.'
 BASE_DIR = dirname(abspath(__file__))
 
 
@@ -32,6 +34,7 @@ def read_table(sheet, header, row, col, datemode):
         # Remove empty columns
         line = [x for x in sheet.row_values(r) if x is not '']
         # Verify format
+        print(line)
         if len(line) != 8:
             print('\t\t Format error in table')
             sys.exit(1)
@@ -72,18 +75,20 @@ def record_negotiations(negotiations):
         obs = ''
         # If total stocks < 0 than something are missing
         obs = MSG_TO_MANY_SELLS if total[cod] < 0  else ''
+        preco = nego.get('pm_compra', 0) if nego.get('pm_compra', 0) else nego.get('pm_venda', 0)
         with open(file_name, mode='a+') as file:
             writer = csv.writer(file)
             if getsize(file_name) == 0:
                 writer.writerow([
-                    'COD', 'Data', 'Qtd compras', 'Qtd vendas', 'Posição',
-                    'Qtd ações', 'Observações'
+                    'COD', 'Data', 'Qtd compras', 'Qtd vendas', 'Preço',
+                    'Posição', 'Qtd ações', 'Observações'
                 ])
             writer.writerow([
                 nego['cod'],
                 nego['data'],
                 nego['qtd_compra'],
                 nego['qtd_venda'],
+                preco,
                 nego['posicao'],
                 total[cod],
                 obs
@@ -99,12 +104,13 @@ def record_pms(pms):
             writer.writerow(['Cod', 'Qtd vendas', 'Qtd compras', 'PM', 'Observações'])
         for cod, dict in pms.items():
             obs = MSG_TO_MANY_SELLS if dict.get('n_sell', 0) > dict.get('n_buy', 0) else ''
+            selled = MSG_STOCK_SELLED if dict.get('pm', 0) <= 0 else ''
             writer.writerow([
                 cod,
                 dict.get('n_sell', 0),
                 dict.get('n_buy', 0),
                 dict.get('pm', 0),
-                obs
+                (obs + '\n' + selled) if selled else obs
             ])
 
     # Record Sells
@@ -122,8 +128,8 @@ def record_pms(pms):
 
             # If total stocks < 0 than something are missing
             obs = MSG_TO_MANY_SELLS if dict.get('n_sell', 0) > dict.get('n_buy', 0) else ''
-            profit =
-            writer.writerow([dict.get('n_sell', 0), 
+            profit = dict.get('total_price', 0)
+            writer.writerow([dict.get('n_sell', 0),
                 cod,
                 dict.get('data', 0),
                 dict.get('n_sell', 0),
