@@ -37,8 +37,7 @@ def monthly_negotiations(sheet, datemode):
 
 def median_prices(negotiations):
     '''
-        Calculation of median prices by the formula:
-            pm = sum(qtd * pm_compra) - sum(qtd * pm_venda) / (sum(qtd_compra) - sum(qtd_venda))
+        Calculation of median prices and record sells
     '''
     dicts_cod_sums = {}
     sells = []
@@ -63,8 +62,10 @@ def median_prices(negotiations):
         cod_sum['data'] = nego['data']
 
         if nego['posicao'].strip() == 'VENDIDA':
-            # TODO: profit Calculation
+            # profit Calculation
             cod_sum['profit'] = (nego['pm_venda'] - cod_sum['pm']) * nego['qtd_venda']
+            # Append cod to cod_sum for easy handling
+            cod_sum['cod'] = cod
             sells.append(cod_sum)
         elif nego['posicao'].strip() == 'COMPRADA':
             pass
@@ -77,25 +78,16 @@ def median_prices(negotiations):
         except ZeroDivisionError:
             print('\t\tStock', cod, 'fully selled!!!')
 
-        # Add to dict of dicts
+        # Update to dict of dicts
         dicts_cod_sums[cod] = cod_sum
 
-        print(cod, cod_sum, '\n')
+        # TODO: remove
+        # print(cod, cod_sum, '\n')
 
-    print(dicts_cod_sums)
+    #print(dicts_cod_sums)
 
-    # Record sells in Order
-    # record_sells(sells)
-    # TODO: recor pms here
-
-    # Calculate PM
-    # for cod in dicts_cod_sums:
-    #     try:
-    #         dicts_cod_sums[cod]['pm'] = dicts_cod_sums[cod]['total_price'] \
-    #             / (dicts_cod_sums[cod].get('n_buy', 0) - dicts_cod_sums[cod].get('n_sell', 0))
-    #     except ZeroDivisionError:
-    #         print('\t\tStock', cod, 'fully selled!!!')
-
+    # Record sells before return
+    record_sells(sells)
     return dicts_cod_sums
 
 #### Begin
@@ -112,7 +104,7 @@ if __name__ == "__main__":
 
     # print(negotiations)
 
-    # Create csv files in negotiations dir and create delss file
+    # Create csv files in negotiations dir and create selss file
     record_negotiations(negotiations)
     pms = median_prices(negotiations)
     record_pms(pms)

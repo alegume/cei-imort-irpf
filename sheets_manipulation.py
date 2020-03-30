@@ -117,25 +117,19 @@ def record_sells(negotiations):
         writer = csv.writer(file)
         if getsize(FILE_SELLS) == 0:
             writer.writerow([
-                'Cod', 'Data', 'Qtd vendas', 'Qtd compras',
-                'PM', 'Lucro', 'Observações'
+                'Cod', 'Data', 'Qtd vendas', 'PM', 'Lucro na operação', 'Qtd total', 'Observações'
             ])
-        for cod, dict in pms.items():
-            # Discart only buys
-            if (dict.get('n_sell', 0) <= 0):
-                continue
-
+        for nego in negotiations:
             # If total stocks < 0 than something are missing
-            obs = MSG_TO_MANY_SELLS if dict.get('n_sell', 0) > dict.get('n_buy', 0) else ''
-            # TODO: Errado, calcular. Colocar no registro, passo a passo, respeitando a ordem vendas/compras
-            profit = dict.get('total_price', 0)
+            obs = MSG_TO_MANY_SELLS if nego.get('n_sell', 0) > nego.get('n_buy', 0) else ''
+            # verify fi it's fully selled
+            obs = MSG_STOCK_SELLED if nego.get('total_stocks') == 0 else obs
             writer.writerow([
-                cod,
-                dict.get('data', 0),
-                dict.get('n_sell', 0),
-                dict.get('n_buy', 0),
-                dict.get('pm', 0),
-                # if its total_price < 0 it's a proffit
-                profit,
+                nego.get('cod'),
+                nego.get('data', 0),
+                nego.get('n_sell', 0),
+                nego.get('pm', 0),
+                nego.get('profit', 0),
+                nego.get('total_stocks', 0),
                 obs
             ])
