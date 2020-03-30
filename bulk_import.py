@@ -66,25 +66,21 @@ def median_prices(negotiations):
             cod_sum['profit'] = (nego['pm_venda'] - cod_sum['pm']) * nego['qtd_venda']
             # Append cod to cod_sum for easy handling
             cod_sum['cod'] = cod
-            sells.append(cod_sum)
+            # We should prevent a pointer like behavior
+            sells.append(cod_sum.copy())
         elif nego['posicao'].strip() == 'COMPRADA':
-            pass
+            # Pm is only calculated in buying
+            # Calculate PM
+            try:
+                cod_sum['pm'] = cod_sum['total_price'] / cod_sum['total_stocks']
+            except ZeroDivisionError:
+                print('\t\tStock', cod, 'fully selled!!!')
         else:
             print('\t\t Error in column Posição. Unnable to proceed, verify import file.')
 
-        # Calculate PM
-        try:
-            cod_sum['pm'] = cod_sum['total_price'] / cod_sum['total_stocks']
-        except ZeroDivisionError:
-            print('\t\tStock', cod, 'fully selled!!!')
 
         # Update to dict of dicts
         dicts_cod_sums[cod] = cod_sum
-
-        # TODO: remove
-        # print(cod, cod_sum, '\n')
-
-    #print(dicts_cod_sums)
 
     # Record sells before return
     record_sells(sells)
