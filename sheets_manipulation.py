@@ -34,7 +34,6 @@ def read_table(sheet, header, row, col, datemode):
         # Remove empty columns
         line = [x for x in sheet.row_values(r) if x is not '']
         # Verify format
-        print(line)
         if len(line) != 8:
             print('\t\t Format error in table')
             sys.exit(1)
@@ -113,7 +112,7 @@ def record_pms(pms):
                 (obs + '\n' + selled) if selled else obs
             ])
 
-    # Record Sells
+def record_sells(negotiations):
     with open(FILE_SELLS, mode='w') as file:
         writer = csv.writer(file)
         if getsize(FILE_SELLS) == 0:
@@ -128,8 +127,9 @@ def record_pms(pms):
 
             # If total stocks < 0 than something are missing
             obs = MSG_TO_MANY_SELLS if dict.get('n_sell', 0) > dict.get('n_buy', 0) else ''
+            # TODO: Errado, calcular. Colocar no registro, passo a passo, respeitando a ordem vendas/compras
             profit = dict.get('total_price', 0)
-            writer.writerow([dict.get('n_sell', 0),
+            writer.writerow([
                 cod,
                 dict.get('data', 0),
                 dict.get('n_sell', 0),

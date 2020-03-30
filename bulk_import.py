@@ -41,39 +41,58 @@ def median_prices(negotiations):
             pm = sum(qtd * pm_compra) - sum(qtd * pm_venda) / (sum(qtd_compra) - sum(qtd_venda))
     '''
     dicts_cod_sums = {}
+    sells = []
     # Populate the dict with infos and sums
     for nego in negotiations:
         cod = nego['cod']
         cod_sum = dicts_cod_sums.get(cod, {
             'total_price': 0,
             'n_buy': 0,
-            'n_sell': 0
+            'n_sell': 0,
+            'total_stocks': 0
         })
+
+        cod_sum['total_price'] += nego['pm_compra'] * nego['qtd_compra']
+        cod_sum['total_price'] -= nego['pm_venda'] * nego['qtd_venda']
+
+        cod_sum['n_sell'] += nego['qtd_venda']
+        cod_sum['n_buy'] += nego['qtd_compra']
+
+        cod_sum['total_stocks'] += cod_sum['n_buy'] - cod_sum['n_sell']
+        cod_sum['data'] = nego['data']
+
         if nego['posicao'].strip() == 'VENDIDA':
-            # Update total_price, n_sell
-            cod_sum['total_price'] = cod_sum.get('total_price', 0) - nego['pm_venda'] * nego['qtd_venda']
-            cod_sum['n_sell'] = cod_sum.get('n_sell', 0) + nego['qtd_venda']
-            cod_sum['data'] = nego['data']
-            # print('\tVEnda', cod)
-            # print(nego['pm_venda'], '*', nego['qtd_venda'], '=',cod_sum['total_price'])
+
+            sells.append(cod_sum)
         elif nego['posicao'].strip() == 'COMPRADA':
-            # Update total_price, n_buy
-            cod_sum['total_price'] = cod_sum.get('total_price', 0) + \
-                nego['pm_compra'] * nego['qtd_compra']
-            cod_sum['n_buy'] = cod_sum.get('n_buy', 0) + nego['qtd_compra']
-            # print('\tCompra', cod)
-            # print(nego['pm_compra'], '*', nego['qtd_compra'], '=',cod_sum['total_price'])
+            pass
         else:
             print('\t\t Error in column Posição. Unnable to proceed, verify import file.')
-        dicts_cod_sums[cod] = cod_sum
 
-    # Calculate PM
-    for cod in dicts_cod_sums:
+        # Calculate PM
         try:
-            dicts_cod_sums[cod]['pm'] = dicts_cod_sums[cod]['total_price'] \
-                / (dicts_cod_sums[cod].get('n_buy', 0) - dicts_cod_sums[cod].get('n_sell', 0))
+            cod_sum['pm'] = cod_sum.get('total_price') / cod_sum.get('total_stocks')
         except ZeroDivisionError:
             print('\t\tStock', cod, 'fully selled!!!')
+
+        # Add to dict of dicts
+        dicts_cod_sums[cod] = cod_sum
+
+        print(cod, cod_sum, '\n')
+
+    print(dicts_cod_sums)
+
+    # Record sells in Order
+    # record_sells(sells)
+    # TODO: recor pms here
+
+    # Calculate PM
+    # for cod in dicts_cod_sums:
+    #     try:
+    #         dicts_cod_sums[cod]['pm'] = dicts_cod_sums[cod]['total_price'] \
+    #             / (dicts_cod_sums[cod].get('n_buy', 0) - dicts_cod_sums[cod].get('n_sell', 0))
+    #     except ZeroDivisionError:
+    #         print('\t\tStock', cod, 'fully selled!!!')
 
     return dicts_cod_sums
 
@@ -89,7 +108,7 @@ if __name__ == "__main__":
     # Sort negotiations by date
     negotiations = sorted(negotiations, key=lambda k: k['data'])
 
-    print(negotiations)
+    # print(negotiations)
 
     # Create csv files in negotiations dir and create delss file
     record_negotiations(negotiations)
