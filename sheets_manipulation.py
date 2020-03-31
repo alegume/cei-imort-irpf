@@ -7,7 +7,7 @@ import datetime
 
 # some consts for easy configuring
 FILE_SELLS = 'vendas.csv'
-FILE_PM = 'preco-medio-acoes.csv'
+FILE_PM = 'preco-medio.csv'
 NEGOTIATIONS_DIR = 'negotiations'
 MSG_TO_MANY_SELLS = 'ATENÇÃO! Mais vendas do que o possível. É provável que aconteceu algum split, transferência de ativos ou outro evento que tenha aumentado sua quantidade de ações; porém, não entrou na planilha de negociações da CEI e não foi contabilizada. VERIFIQUE!'
 MSG_STOCK_SELLED = 'Ativo liquidado! Sem custódia.'
