@@ -4,7 +4,7 @@ Scripts de importação de extratos do CEI para geração de informações para 
 
 > Não há nenhuma garantia de que esses códigos estão corretos. 
 > Toda e qualquer responsabilidade sobre o informe à Receita Federal é unica e exclusivamente do declarante. 
-> Verifique todas as informações, pois não há nenhuma garantia da corretude das mesmas.
+> Verifique todas as informações, pois não há nenhuma garantia da corretude das mesmas. Use por sua conta e risco!
 
 ## Como funciona?
 
@@ -28,7 +28,7 @@ Se estiver usando o Windows, instale o Python 3 antes de tudo.
 
 ### Customização
 
-Nos arquivos .py existem algumas constantes que podem ser modificadas para customização. A mais importante, talvez, seja a constante 'COST_OF_OPERATION'. Mude o valor para inserir o custo de cada operação em sua corretora. Por padrão, essa contante está setada com valor 0. Se você tem um custo fixo por operação, apenas defina essa valor para a constante. Se seu custo é proporcional, vai precisar alterar o código após o comentário '# Add the cost of operation on each negotiation'
+Nos arquivos .py existem algumas constantes que podem ser modificadas para customização. A mais importante, talvez, seja a constante 'COST_OF_OPERATION'. Mude o valor para inserir o custo de cada operação em sua corretora. Por padrão, essa contante está setada com valor 0. Se você possui custo de corretagem zero na sua corretora, não precisa mudar nada. Se você tem um custo fixo por operação, apenas defina esse valor para a constante. Se seu custo é proporcional, vai precisar alterar o código após o comentário '# Add the cost of operation on each negotiation'
 
 ## IMPORTANTE!!
 
