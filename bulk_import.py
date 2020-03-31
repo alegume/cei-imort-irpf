@@ -22,7 +22,7 @@ from os.path import isfile, join
 from sheets_manipulation import *
 
 # some consts for easy configuring
-COST_OF_OPERATION = 3.10
+COST_OF_OPERATION = 0
 DIR = 'import-file-xls'
 NEGOTIATION_STR = 'INFORMAÇÕES DE NEGOCIAÇÃO DE ATIVOS'
 
@@ -67,8 +67,13 @@ def median_prices(negotiations):
         if nego['posicao'].strip() == 'VENDIDA':
             # Needs to update total price, cause total_stocks changed but not PM!!!
             cod_sum['total_price'] = cod_sum['pm'] * cod_sum['total_stocks']
-            # profit Calculation
+            # Profit Calculation
             cod_sum['profit'] = (nego['pm_venda'] - cod_sum['pm']) * nego['qtd_venda']
+            # After the profit
+            if cod_sum['total_stocks'] <= 0:
+                # When fully selled, pm = 0
+                cod_sum['pm'] = 0
+                print('\t\tStock', cod, 'fully selled!!!')
             # Append cod to cod_sum for easy handling
             cod_sum['cod'] = cod
             # We should prevent a pointer like behavior
@@ -76,23 +81,10 @@ def median_prices(negotiations):
         elif nego['posicao'].strip() == 'COMPRADA':
             # Pm is only calculated in buying
             # Calculate PM
-            try:
-                cod_sum['pm'] = cod_sum['total_price'] / cod_sum['total_stocks']
-            except ZeroDivisionError:
-                print('\t\tStock', cod, 'fully selled!!!')
+            cod_sum['pm'] = cod_sum['total_price'] / cod_sum['total_stocks']
+
         else:
             print('\t\t Error in column Posição. Unnable to proceed, verify import file.')
-
-        print(nego)
-        print(
-            cod,
-            cod_sum['n_buy'],
-            cod_sum['n_sell'],
-            cod_sum['total_stocks'],
-            cod_sum['total_price'],
-            cod_sum['pm'],
-            cod_sum.get('profit', 0),
-        )
 
         # Update to dict of dicts
         dicts_cod_sums[cod] = cod_sum
@@ -112,11 +104,7 @@ if __name__ == "__main__":
 
     # Sort negotiations by date
     negotiations = sorted(negotiations, key=lambda k: k['data'])
-
-    # print(negotiations)
-
     # Create csv files in negotiations dir and create selss file
     record_negotiations(negotiations)
     pms = median_prices(negotiations)
     record_pms(pms)
-    # print(pms)
