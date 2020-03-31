@@ -7,10 +7,11 @@
 
 # Lembrar: Verificar a venda de TAEE em maio. Compra e vanda mesmo dia. Prejuizo.
 # Calcular e colacar em vendas.csv
-# Escrever a venda no ato da venda considerando o PM atual e registrar lucro/preju
+# Explicar README: Escrever a venda no ato da venda considerando o PM atual e registrar lucro/preju
 
 
 # DONE: Order by date
+# TODO: Considerar custos operacionais
 # TODO: Readme.md
 # DONE: VErificar se sell >= buy pra vendas, etc
 # DONE: Criar planilha de negociacao por ativo, salvar bens e vendas, desconsiderar vendas, ver formula
@@ -21,9 +22,9 @@ from os.path import isfile, join
 from sheets_manipulation import *
 
 # some consts for easy configuring
+COST_OF_OPERATION = 3.10
 DIR = 'import-file-xls'
 NEGOTIATION_STR = 'INFORMAÇÕES DE NEGOCIAÇÃO DE ATIVOS'
-
 
 def monthly_negotiations(sheet, datemode):
     # Find negotiation table
@@ -52,6 +53,8 @@ def median_prices(negotiations):
             'pm': 0
         })
 
+        # Add the cost of operation on each negotiation
+        cod_sum['total_price'] += COST_OF_OPERATION
         cod_sum['total_price'] += nego['pm_compra'] * nego['qtd_compra']
         cod_sum['total_price'] -= nego['pm_venda'] * nego['qtd_venda']
 
@@ -62,6 +65,8 @@ def median_prices(negotiations):
         cod_sum['data'] = nego['data']
 
         if nego['posicao'].strip() == 'VENDIDA':
+            # Needs to update total price, cause total_stocks changed but not PM!!!
+            cod_sum['total_price'] = cod_sum['pm'] * cod_sum['total_stocks']
             # profit Calculation
             cod_sum['profit'] = (nego['pm_venda'] - cod_sum['pm']) * nego['qtd_venda']
             # Append cod to cod_sum for easy handling
@@ -78,6 +83,16 @@ def median_prices(negotiations):
         else:
             print('\t\t Error in column Posição. Unnable to proceed, verify import file.')
 
+        print(nego)
+        print(
+            cod,
+            cod_sum['n_buy'],
+            cod_sum['n_sell'],
+            cod_sum['total_stocks'],
+            cod_sum['total_price'],
+            cod_sum['pm'],
+            cod_sum.get('profit', 0),
+        )
 
         # Update to dict of dicts
         dicts_cod_sums[cod] = cod_sum
