@@ -100,7 +100,10 @@ def record_pms(pms):
     with open(FILE_PM, mode='w') as file:
         writer = csv.writer(file)
         if getsize(FILE_PM) == 0:
-            writer.writerow(['Cod', 'Qtd vendas', 'Qtd compras', 'PM', 'Observações'])
+            writer.writerow([
+                'Cod', 'Qtd vendas', 'Qtd compras', 'PM', 'Quantidade total',
+                'Valor total', 'Observações'
+            ])
         for cod, dict in pms.items():
             obs = MSG_TO_MANY_SELLS if dict.get('n_sell', 0) > dict.get('n_buy', 0) else ''
             selled = MSG_STOCK_SELLED if dict.get('pm', 0) <= 0 else ''
@@ -109,6 +112,8 @@ def record_pms(pms):
                 dict.get('n_sell', 0),
                 dict.get('n_buy', 0),
                 dict.get('pm', 0),
+                dict.get('total_stocks', 0),
+                dict.get('total_price', 0),
                 (obs + '\n' + selled) if selled else obs
             ])
 

@@ -55,16 +55,16 @@ def median_prices(negotiations):
 
         # Add the cost of operation on each negotiation
         cod_sum['total_price'] += COST_OF_OPERATION
-        cod_sum['total_price'] += nego['pm_compra'] * nego['qtd_compra']
-        cod_sum['total_price'] -= nego['pm_venda'] * nego['qtd_venda']
+
+        # cod_sum['total_price'] -= nego['pm_venda'] * nego['qtd_venda']
 
         cod_sum['n_sell'] += nego['qtd_venda']
         cod_sum['n_buy'] += nego['qtd_compra']
 
-        cod_sum['total_stocks'] += nego['qtd_compra'] - nego['qtd_venda']
         cod_sum['data'] = nego['data']
 
         if nego['posicao'].strip() == 'VENDIDA':
+            cod_sum['total_stocks'] -= nego['qtd_venda']
             # Needs to update total price, cause total_stocks changed but not PM!!!
             cod_sum['total_price'] = cod_sum['pm'] * cod_sum['total_stocks']
             # Profit Calculation
@@ -79,6 +79,8 @@ def median_prices(negotiations):
             # We should prevent a pointer like behavior
             sells.append(cod_sum.copy())
         elif nego['posicao'].strip() == 'COMPRADA':
+            cod_sum['total_price'] += nego['pm_compra'] * nego['qtd_compra']
+            cod_sum['total_stocks'] += nego['qtd_compra']
             # Pm is only calculated in buying
             # Calculate PM
             cod_sum['pm'] = cod_sum['total_price'] / cod_sum['total_stocks']
