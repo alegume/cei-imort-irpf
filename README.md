@@ -1,10 +1,12 @@
 # cei-import-irpf
 
-Scripts de importação de extratos do CEI para geração de informações para Imposto de Renda (IRPF). Não há nenhuma garantia de que esses códigos estão corretos. Toda e qualquer responsabilidade sobre o informe à Receita Federal é unica e exclusivamente do declarante. Verifique todas as informações, pois não há nenhuma garantia da corretude das mesmas.
+Scripts de importação de extratos do CEI para geração de informações para Imposto de Renda (IRPF). 
+
+Não há nenhuma garantia de que esses códigos estão corretos. Toda e qualquer responsabilidade sobre o informe à Receita Federal é unica e exclusivamente do declarante. Verifique todas as informações, pois não há nenhuma garantia da corretude das mesmas.
 
 ## Como funciona?
 
-Basta baixar as planilhas de transações direto no site da CEI (https://cei.b3.com.br). Use o menu 'Extratos e Informativos' > 'Extrato BM&FBOVESPA'.
+Basta baixar as planilhas de transações direto no site da CEI (https://cei.b3.com.br). Use o menu 'Extratos e Informativos' > 'Extrato BM&FBOVESPA'. Coloque as planilhas do ano anterior (2019) no diretório 'import-file-xls' e rode o script. Caso tenha feito operações em 2018, ou antes, copiei a planilha 'pms-anteriores.xls' que está dentro do diretório 'models' para o diretório 'import-file-xls'. Abra essa planilha e preencha com seus preços ativos e preços médios (provavelmente já informados no Imposto de Renda do ano anterior). Veja as observações mais abaixo.
 
 ## Instalar e executar
 
@@ -33,4 +35,4 @@ Na minha conta na CEI, tem um erro nos meses de janeiro/2019 até Abril/2019. To
 
 ## Observações
 
-Se quiser criar uma planilha de importação dos preços médios anteriores, use o modelo models/pms-anteriores.xls. Copie o modelo para import-file-xls e renomeie se achar necessário. Sempre que uma célula não tiver valor, preencha com 0. NUNCA DEIXE A CELULA VAZIA!
+Se quiser criar uma planilha de importação dos preços médios anteriores, use o modelo models/pms-anteriores.xls. Copie o modelo para import-file-xls e renomeie se achar necessário. Sempre que uma célula não tiver valor, preencha com 0. *NUNCA DEIXE A CELULA VAZIA! Também não deixe linhas vazias entre as informações.*
