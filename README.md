@@ -1,8 +1,10 @@
 # cei-import-irpf
 
-Scripts de importação de extratos do CEI para geração de informações para Imposto de Renda (IRPF). 
+Scripts de importação de extratos do CEI para geração de informações para Imposto de Renda (IRPF). **Aviso:**
 
-Não há nenhuma garantia de que esses códigos estão corretos. Toda e qualquer responsabilidade sobre o informe à Receita Federal é unica e exclusivamente do declarante. Verifique todas as informações, pois não há nenhuma garantia da corretude das mesmas.
+> Não há nenhuma garantia de que esses códigos estão corretos. 
+> Toda e qualquer responsabilidade sobre o informe à Receita Federal é unica e exclusivamente do declarante. 
+> Verifique todas as informações, pois não há nenhuma garantia da corretude das mesmas.
 
 ## Como funciona?
 
@@ -12,11 +14,11 @@ Basta baixar as planilhas de transações direto no site da CEI (https://cei.b3.
 
 Após baixar/clonar e acessar o repositório, instale as dependências:
 
-  python3 -m pip install -r requirements.txt
+  `python3 -m pip install -r requirements.txt`
 
 Execute o script de importação:
 
-  python3 bulk_import.py
+  `python3 bulk_import.py`
 
 Pronto! Foi gerado um arquivo com seus preços médios (preco-medio.csv), um arquivo com suas vendas (vendas.csv) contendo lucros/prejuízos e os arquivos de transações no diretório 'negotiations'. Um arquivo para cada ativo.
 
@@ -35,4 +37,4 @@ Na minha conta na CEI, tem um erro nos meses de janeiro/2019 até Abril/2019. To
 
 ## Observações
 
-Se quiser criar uma planilha de importação dos preços médios anteriores, use o modelo models/pms-anteriores.xls. Copie o modelo para import-file-xls e renomeie se achar necessário. Sempre que uma célula não tiver valor, preencha com 0. *NUNCA DEIXE A CELULA VAZIA! Também não deixe linhas vazias entre as informações.*
+Se quiser criar uma planilha de importação dos preços médios anteriores, use o modelo models/pms-anteriores.xls. Copie o modelo para import-file-xls e renomeie se achar necessário. Sempre que uma célula não tiver valor, preencha com 0. **NUNCA DEIXE A CELULA VAZIA! Também não deixe linhas vazias entre as informações.**
