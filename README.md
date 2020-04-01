@@ -45,4 +45,4 @@ Na minha conta na CEI, tem um erro nos meses de janeiro/2019 até Abril/2019. To
 
 ## Observações
 
-Se quiser criar uma planilha de importação dos preços médios anteriores, use o modelo models/pms-anteriores.xls. Copie o modelo para import-file-xls e renomeie se achar necessário. Sempre que uma célula não tiver valor, preencha com 0. **NUNCA DEIXE A CELULA VAZIA! Também não deixe linhas vazias entre as informações.**
+Se quiser criar uma planilha de importação dos preços médios anteriores, use o modelo models/pms-anteriores.xls. Copie o modelo para import-file-xls, renomeie se achar necessário e edite os valores. O mesmo pode ser feito para subscrição de cotas de FIIs. Sempre que uma célula não tiver valor, preencha com 0. **NUNCA DEIXE A CELULA VAZIA! Também não deixe linhas vazias entre as informações.**
