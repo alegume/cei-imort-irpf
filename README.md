@@ -6,6 +6,14 @@ Scripts de importação de extratos do CEI para geração de informações para 
 > Toda e qualquer responsabilidade sobre o informe à Receita Federal é unica e exclusivamente do declarante. 
 > Verifique todas as informações, pois não há nenhuma garantia da corretude das mesmas. Use por sua conta e risco!
 
+Algumas situações são ignoradas, nesta versão e podem gerar inconsistências. Exemplos:
+
+ - transferência de ativos (entre corretoras, etc);
+ - desdobramentos/agrupamentos (splits/implits);
+ - IPO/OPA e fechamento de capital na B3;
+ - subscrição em emissão de cotas de FIIs;
+ - mudança de código do ativo, ou aquisição de empresa que implique na mudança (exemplo: KROT3 -> COGN3, SNSL3 -> SQIA3, FIBR3 -> SUZB33).
+
 ## Como funciona?
 
 Basta baixar as planilhas de transações direto no site da CEI (https://cei.b3.com.br). Use o menu 'Extratos e Informativos' > 'Extrato BM&FBOVESPA'. Coloque as planilhas do ano anterior (2019) no diretório 'import-file-xls' e rode o script. Caso tenha feito operações em 2018, ou antes, copiei a planilha 'pms-anteriores.xls' que está dentro do diretório 'models' para o diretório 'import-file-xls'. Abra essa planilha e preencha com seus preços ativos e preços médios (provavelmente já informados no Imposto de Renda do ano anterior). Veja as observações mais abaixo.
