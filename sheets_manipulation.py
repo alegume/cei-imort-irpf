@@ -85,11 +85,11 @@ def record_negotiations(negotiations):
             writer.writerow([
                 nego['cod'],
                 nego['data'],
-                nego['qtd_compra'],
-                nego['qtd_venda'],
-                preco,
+                int(nego['qtd_compra']),
+                int(nego['qtd_venda']),
+                str(preco).replace('.', ','),
                 nego['posicao'],
-                total[cod],
+                str(total[cod]).replace('.', ','),
                 obs
             ])
 
@@ -109,11 +109,11 @@ def record_pms(pms):
             selled = MSG_STOCK_SELLED if dict.get('pm', 0) <= 0 else ''
             writer.writerow([
                 cod,
-                dict.get('n_sell', 0),
-                dict.get('n_buy', 0),
-                dict.get('pm', 0),
-                dict.get('total_stocks', 0),
-                dict.get('total_price', 0),
+                int(dict.get('n_sell', 0)),
+                int(dict.get('n_buy', 0)),
+                str(dict.get('pm', 0)).replace('.', ','),
+                int(dict.get('total_stocks', 0)),
+                str(dict.get('total_price', 0)).replace('.', ','),
                 (obs + '\n' + selled) if selled else obs
             ])
 
@@ -132,9 +132,9 @@ def record_sells(negotiations):
             writer.writerow([
                 nego.get('cod'),
                 nego.get('data', 0),
-                nego.get('n_sell', 0),
-                nego.get('pm', 0),
-                nego.get('profit', 0),
-                nego.get('total_stocks', 0),
+                int(nego.get('n_sell', 0)),
+                str(nego.get('pm', 0)).replace('.', ','),
+                str(nego.get('profit', 0)).replace('.', ','),
+                int(nego.get('total_stocks', 0)),
                 obs
             ])
