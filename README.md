@@ -13,6 +13,7 @@ Algumas situações são ignoradas nesta versão e que podem gerar inconsistênc
  - IPO/OPA e fechamento de capital na B3;
  - subscrição em emissão de cotas de FIIs;
  - mudança de código do ativo, ou aquisição de empresa que implique na mudança (exemplo: KROT3 -> COGN3, SNSL3 -> SQIA3, FIBR3 -> SUZB33).
+ - proventos em ativos
 
 ## Como funciona?
 
